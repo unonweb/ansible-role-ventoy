@@ -1,0 +1,11 @@
+---
+ventoy_user:
+ventoy_state: present
+ventoy_archive_src: ventoy-1.1.10-linux.tar.gz
+ventoy_archive_dst: "/opt/ventoy"
+ventoy_top_dir_name: "{{ ventoy_archive_src.replace('-linux.tar.gz', '') }}" # -> ventoy-1.1.10
+ventoy_exec_dst: "{{ ventoy_archive_dst }}/{{ ventoy_top_dir_name }}/VentoyGUI.x86_64" #
+ventoy_icon_src: VentoyLogo.png
+ventoy_icon_dst: "{{ ventoy_archive_dst }}/VentoyLogo.png"
+ventoy_desktop_src: ventoy.desktop.j2
+ventoy_desktop_dst: /usr/share/applications/ventoy.desktop

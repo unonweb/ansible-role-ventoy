@@ -1,0 +1,71 @@
+---
+- name: ventoy role
+  tags:
+  - ventoy
+  block:
+
+  # assertions
+  - name: Assertions for ventoy role
+    ansible.builtin.assert:
+      that:
+      - ansible_facts.distribution == "Debian"
+
+  # install archive
+  - when: ventoy_state == "present"
+    block:
+      
+    # mkdir
+    - name: Mkdir {{ ventoy_archive_dst }}
+      become: true
+      ansible.builtin.file:
+        path: "{{ ventoy_archive_dst }}"
+        mode: u=rwx,g=rx,o=rx
+        state: directory
+
+    # unarchive
+    - name: Unarchive {{ ventoy_archive_src }} to {{ ventoy_archive_dst }}
+      become: true
+      ansible.builtin.unarchive:
+        src: "{{ ventoy_archive_src }}"
+        dest: "{{ ventoy_archive_dst }}"
+        remote_src: false # true: unpack an archive which already exists on the target
+        owner: root
+        group: root
+
+    # check ventoy_exec_dst
+    - name: Check if exists {{ ventoy_exec_dst }}
+      ansible.builtin.stat:
+        path: "{{ ventoy_exec_dst }}"
+      register: __ventoy_exec_dst
+      failed_when: __ventoy_exec_dst.stat.exists == false
+
+    # copy icon
+    - name: Copy {{ ventoy_icon_src }} to {{ ventoy_icon_dst }}
+      become: true
+      ansible.builtin.copy:
+        src: "{{ ventoy_icon_src }}"
+        dest: "{{ ventoy_icon_dst  }}"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+
+    # template desktop file
+    - name: Template {{ ventoy_desktop_src }} to {{ ventoy_desktop_dst }}
+      become: true
+      ansible.builtin.template:
+        src: "{{ ventoy_desktop_src }}"
+        dest: "{{ ventoy_desktop_dst }}"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+
+  # remove archive
+  - when: ventoy_state == "absent"
+    block:
+      
+    - name: Remove {{ ventoy_archive_dst }}
+      become: true
+      ansible.builtin.file:
+        path: "{{ ventoy_archive_dst }}"
+        state: absent
+      failed_when: false
