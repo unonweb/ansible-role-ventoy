@@ -8,7 +8,7 @@
   - name: Assertions for ventoy role
     ansible.builtin.assert:
       that:
-      - ansible_facts.distribution == "Debian"
+      - ansible_facts['distribution'] == "Debian"
 
   # install archive
   - when: ventoy_state == "present"
